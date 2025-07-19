@@ -1,0 +1,39 @@
+services:
+  db:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    networks:
+      - backend
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: pit_dev
+    volumes:
+      - db:/var/lib/postgresql/data
+
+  app: 
+    build:
+      context: .
+    container_name: app
+    environment:
+      MIX_ENV: dev
+    ports:
+      - "4000:4000"
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+    networks:
+      - backend
+      - payment-processor
+
+networks:
+  backend:
+    driver: bridge
+  payment-processor:
+    external: true
+
+volumes:
+  db:
+    driver: local
