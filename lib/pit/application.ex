@@ -1,4 +1,4 @@
-defmodule Pit.Application do
+  defmodule Pit.Application do
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   @moduledoc false
@@ -15,7 +15,8 @@ defmodule Pit.Application do
       # Start a worker by calling: Pit.Worker.start_link(arg)
       # {Pit.Worker, arg},
       # Start to serve requests, typically the last entry
-      PitWeb.Endpoint
+      PitWeb.Endpoint,
+      {Finch, name: MyFinch}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

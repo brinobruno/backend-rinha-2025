@@ -3,25 +3,21 @@ FROM elixir:1.16-alpine
 # Install tools
 RUN apk add --no-cache build-base git npm inotify-tools
 
-# Set environment
 ENV MIX_ENV=dev \
     LANG=C.UTF-8
 
-# Create app directory
 WORKDIR /app
 
 # Install hex + rebar
 RUN mix local.hex --force && mix local.rebar --force
 
-# Copy mix files
-COPY mix.exs mix.lock ./
-COPY config config
-
-# Install deps
-RUN mix deps.get
-
-# Copy the rest
+# Copy the entire project first (respects .dockerignore)
 COPY . .
 
-# Run server
-CMD ["mix", "phx.server"]
+# Then install deps
+RUN mix deps.get
+
+ENV PROCESSOR_DEFAULT_URL=http://payment-processor-default:8080
+ENV PROCESSOR_FALLBACK_URL=http://payment-processor-fallback:8080
+
+CMD ["iex", "-S", "mix", "phx.server"]

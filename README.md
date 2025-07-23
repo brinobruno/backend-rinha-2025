@@ -6,6 +6,12 @@
 
 `docker compose up -d --build`
 
+to access container and iex
+
+`docker exec -it <container_id> sh`
+
+`iex -S mix`
+
 ---
 
 To start your Phoenix server:
