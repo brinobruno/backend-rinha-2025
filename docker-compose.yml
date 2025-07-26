@@ -76,3 +76,13 @@ services:
         limits:
           cpus: "0.30"
           memory: "79MB"
+
+networks:
+  backend:
+    driver: bridge
+  payment-processor:
+    external: true
+
+volumes:
+  db:
+    driver: local
