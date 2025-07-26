@@ -1,4 +1,4 @@
-  defmodule Pit.Application do
+defmodule Pit.Application do
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   @moduledoc false
@@ -7,23 +7,27 @@
 
   @impl true
   def start(_type, _args) do
-    children = [
-      PitWeb.Telemetry,
-      Pit.Repo,
-      {DNSCluster, query: Application.get_env(:pit, :dns_cluster_query) || :ignore},
-      {Phoenix.PubSub, name: Pit.PubSub},
-      # Start a worker by calling: Pit.Worker.start_link(arg)
-      # {Pit.Worker, arg},
-      # Start to serve requests, typically the last entry
-      PitWeb.Endpoint,
-      {Finch, name: MyFinch}
-    ]
+    children =
+      [
+        PitWeb.Telemetry,
+        Pit.Repo,
+        {DNSCluster, query: Application.get_env(:pit, :dns_cluster_query) || :ignore},
+        {Phoenix.PubSub, name: Pit.PubSub},
+        # Start a worker by calling: Pit.Worker.start_link(arg)
+        # {Pit.Worker, arg},
+        # Start to serve requests, typically the last entry
+        PitWeb.Endpoint,
+        {Finch, name: MyFinch}
+      ] ++ payments_server_child(Mix.env())
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: Pit.Supervisor]
     Supervisor.start_link(children, opts)
   end
+
+  defp payments_server_child(:test), do: []
+  defp payments_server_child(_env), do: [{Pit.Payments.PaymentsServer, []}]
 
   # Tell Phoenix to update the endpoint configuration
   # whenever the application is updated.

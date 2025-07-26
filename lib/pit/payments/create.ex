@@ -1,14 +1,14 @@
 defmodule Pit.Payments.Create do
   alias Pit.Repo
   alias Pit.Payments.Payment
-  alias Pit.Payments.Status
+  alias Pit.Payments.Processor
 
   def call(payment_body) do
     handle_response(payment_body)
   end
 
   defp handle_response(payment_body) do
-    case Status.health_check() do
+    case Processor.health_check() do
       {:ok, check_response} ->
         case Jason.decode(check_response) do
           {:ok, %{"failing" => false}} ->

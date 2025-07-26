@@ -1,4 +1,4 @@
-defmodule Pit.Payments.Status do
+defmodule Pit.Payments.Processor do
   def health_check do
     url = System.get_env("PROCESSOR_DEFAULT_URL")
 
