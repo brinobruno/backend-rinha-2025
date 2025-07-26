@@ -11,6 +11,11 @@ services:
     networks:
       - backend
       - payment-processor
+    deploy:
+      resources:
+        limits:
+          cpus: "0.15"
+          memory: "32MB"
 
   db:
     image: postgres:latest
@@ -24,6 +29,11 @@ services:
       POSTGRES_DB: pit_dev
     volumes:
       - db:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          cpus: "0.75"
+          memory: "160MB"
 
   app1:
     build:
@@ -31,8 +41,6 @@ services:
     container_name: app1
     environment:
       MIX_ENV: dev
-    # ports:
-    #   - "4000:4000"
     expose:
       - "4000"
     volumes:
@@ -42,6 +50,11 @@ services:
     networks:
       - backend
       - payment-processor
+    deploy:
+      resources:
+        limits:
+          cpus: "0.30"
+          memory: "79MB"
 
   app2:
     build:
@@ -49,8 +62,6 @@ services:
     container_name: app2
     environment:
       MIX_ENV: dev
-    # ports:
-    #   - "4000:4000"
     expose:
       - "4000"
     volumes:
@@ -60,13 +71,8 @@ services:
     networks:
       - backend
       - payment-processor
-
-networks:
-  backend:
-    driver: bridge
-  payment-processor:
-    external: true
-
-volumes:
-  db:
-    driver: local
+    deploy:
+      resources:
+        limits:
+          cpus: "0.30"
+          memory: "79MB"
