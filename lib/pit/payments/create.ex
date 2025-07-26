@@ -1,28 +1,22 @@
 defmodule Pit.Payments.Create do
   alias Pit.Repo
   alias Pit.Payments.Payment
-  alias Pit.Payments.Processor
+  alias Pit.Payments.PaymentsServer
 
   def call(payment_body) do
     handle_response(payment_body)
   end
 
   defp handle_response(payment_body) do
-    case Processor.health_check() do
-      {:ok, check_response} ->
-        case Jason.decode(check_response) do
-          {:ok, %{"failing" => false}} ->
-            send_payment_default(payment_body)
+    case PaymentsServer.get_status() do
+      {:ok, :up} ->
+        send_payment_default(payment_body)
 
-          {:ok, %{"failing" => true}} ->
-            send_payment_fallback(payment_body)
+      {:ok, :down} ->
+        send_payment_fallback(payment_body)
 
-          {:error, decode_error} ->
-            {:error, decode_error}
-        end
-
-      {:error, reason} ->
-        {:error, reason}
+      :error ->
+        send_payment_fallback(payment_body)
     end
   end
 
