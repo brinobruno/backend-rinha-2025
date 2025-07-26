@@ -18,9 +18,8 @@ defmodule PitWeb.PaymentController do
     end
   end
 
-  # TOOD ADD DATE FILTER
-  def get(conn, _params) do
-    case Get.call() do
+  def get(conn, params) do
+    case Get.call(params) do
       {:ok, response} ->
         json(conn, response)
 

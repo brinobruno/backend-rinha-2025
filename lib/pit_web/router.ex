@@ -10,7 +10,7 @@ defmodule PitWeb.Router do
   end
 
   post "/payments", PitWeb.PaymentController, :create
-  get "/payments", PitWeb.PaymentController, :get
+  get "/payments-summary", PitWeb.PaymentController, :get
 
   # Enable LiveDashboard in development
   if Application.compile_env(:pit, :dev_routes) do
