@@ -7,10 +7,6 @@
 # General application configuration
 import Config
 
-config :pit,
-  ecto_repos: [Pit.Repo],
-  generators: [timestamp_type: :utc_datetime]
-
 # Configures the endpoint
 config :pit, PitWeb.Endpoint,
   url: [host: "localhost"],

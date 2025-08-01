@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   nginx:
     image: nginx:latest
@@ -10,79 +12,64 @@ services:
       - app2
     networks:
       - backend
-      - payment-processor
     deploy:
       resources:
         limits:
-          cpus: "0.15"
-          memory: "32MB"
-
-  db:
-    image: postgres:latest
-    ports:
-      - "5432:5432"
+          cpus: "0.20"
+          memory: "50MB"
+    restart: unless-stopped
+  redis:
+    image: redis:7-alpine
     networks:
       - backend
-    environment:
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_USER: postgres
-      POSTGRES_DB: pit_dev
-    volumes:
-      - db:/var/lib/postgresql/data
     deploy:
       resources:
         limits:
-          cpus: "0.75"
-          memory: "160MB"
-
+          cpus: "0.20"
+          memory: "50MB"
   app1:
-    build:
-      context: .
-    container_name: app1
+    build: .
     environment:
-      MIX_ENV: dev
-    expose:
-      - "4000"
-    volumes:
-      - .:/app
+      - REDIS_URL=redis://redis:6379
+      - PROCESSOR_DEFAULT_URL=http://payment-processor-default:8080
+      - PROCESSOR_FALLBACK_URL=http://payment-processor-fallback:8080
+      - SECRET_KEY_BASE=Iy1WZcjmLJcfomKxtskVeAsmyek9/SM8E4DMZp2wjd70fN1vHhi4W9zE1gSDC9Kh
+      - PORT=9999
+      - PHX_SERVER=true
     depends_on:
-      - db
+      - redis
     networks:
       - backend
       - payment-processor
     deploy:
       resources:
         limits:
-          cpus: "0.30"
-          memory: "79MB"
-
+          cpus: "0.55"
+          memory: "130MB"
+    restart: unless-stopped
   app2:
-    build:
-      context: .
-    container_name: app2
+    build: .
     environment:
-      MIX_ENV: dev
-    expose:
-      - "4000"
-    volumes:
-      - .:/app
+      - REDIS_URL=redis://redis:6379
+      - PROCESSOR_DEFAULT_URL=http://payment-processor-default:8080
+      - PROCESSOR_FALLBACK_URL=http://payment-processor-fallback:8080
+      - SECRET_KEY_BASE=Iy1WZcjmLJcfomKxtskVeAsmyek9/SM8E4DMZp2wjd70fN1vHhi4W9zE1gSDC9Kh
+      - PORT=9999
+      - PHX_SERVER=true
     depends_on:
-      - db
+      - redis
     networks:
       - backend
       - payment-processor
     deploy:
       resources:
         limits:
-          cpus: "0.30"
-          memory: "79MB"
+          cpus: "0.55"
+          memory: "130MB"
+    restart: unless-stopped
 
 networks:
   backend:
     driver: bridge
   payment-processor:
     external: true
-
-volumes:
-  db:
-    driver: local

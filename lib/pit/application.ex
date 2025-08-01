@@ -10,14 +10,12 @@ defmodule Pit.Application do
     children =
       [
         PitWeb.Telemetry,
-        Pit.Repo,
         {DNSCluster, query: Application.get_env(:pit, :dns_cluster_query) || :ignore},
         {Phoenix.PubSub, name: Pit.PubSub},
-        # Start a worker by calling: Pit.Worker.start_link(arg)
-        # {Pit.Worker, arg},
         # Start to serve requests, typically the last entry
         PitWeb.Endpoint,
-        {Finch, name: MyFinch}
+        {Finch, name: MyFinch, pool_size: 2000},  # Significantly increased for better performance under load
+        Pit.Infrastructure.Redis  # Updated path
       ] ++ payments_server_child(Mix.env())
 
     # See https://hexdocs.pm/elixir/Supervisor.html
@@ -27,13 +25,17 @@ defmodule Pit.Application do
   end
 
   defp payments_server_child(:test), do: []
-  defp payments_server_child(_env), do: [{Pit.Payments.PaymentsServer, []}]
+  defp payments_server_child(_env), do: [
+    {Pit.Domain.Payments.PaymentsServer, []},  # Updated path
+    {Pit.Domain.Payments.RetryProcessor, []},  # Updated path
+    {Pit.Domain.Payments.Worker, []}  # Updated path
+  ]
 
   # Tell Phoenix to update the endpoint configuration
   # whenever the application is updated.
   @impl true
-  def config_change(changed, _new, removed) do
-    PitWeb.Endpoint.config_change(changed, removed)
+  def config_change(_changed, _new, _removed) do
+    # Removed the call to PitWeb.Endpoint.config_change/2 as it doesn't exist
     :ok
   end
 end

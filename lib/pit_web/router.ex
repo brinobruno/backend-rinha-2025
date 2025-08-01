@@ -5,12 +5,13 @@ defmodule PitWeb.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/api", PitWeb do
+  scope "/", PitWeb do
     pipe_through :api
-  end
 
-  post "/payments", PitWeb.PaymentController, :create
-  get "/payments-summary", PitWeb.PaymentController, :get
+    post "/payments", PaymentController, :create
+    get "/payments-summary", PaymentController, :get
+    get "/health", PaymentController, :health
+  end
 
   # Enable LiveDashboard in development
   if Application.compile_env(:pit, :dev_routes) do
