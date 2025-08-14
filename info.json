@@ -1,10 +1,10 @@
 {
-    "name": "Bruno Correa",
-    "social": ["https://github.com/brinobruno"],
-    "source-code-repo": "https://github.com/brinobruno/backend-rinha-2025",
-    "langs": ["elixir"],
-    "storages": ["redis"],
-    "messaging": [],
-    "load-balancers": ["nginx"],
-    "other-technologies": ["phoenix", "finch", "redix"]
+  "name": "Bruno Corrêa",
+  "social": ["https://github.com/brinobruno"],
+  "source-code-repo": "https://github.com/brinobruno/backend-rinha-2025",
+  "langs": ["elixir"],
+  "storages": ["postgresql", "ets"],
+  "messaging": ["gen_server"],
+  "load-balancers": ["nginx"],
+  "other-technologies": ["phoenix", "docker", "finch", "dynamic_supervisor"]
 } 

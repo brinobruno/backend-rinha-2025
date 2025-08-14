@@ -1,111 +1,69 @@
-# Pit - Optimized Payment Processing Backend
+# Pit - Rinha de Backend 2025
 
-## Architecture Overview
+A high-performance Elixir/Phoenix backend for the Rinha de Backend 2025 challenge, designed to process payments asynchronously with zero data inconsistencies and optimal resource usage.
 
-This is an optimized Elixir/Phoenix backend for the Rinha de Backend 2025 challenge, designed to maximize profit while ensuring zero inconsistencies.
+## Technologies Used
 
-## Key Optimizations
-
-### 1. Redis-Based Caching
-- **Processor Status**: Uses Redis to cache processor health status with 60-second expiration
-- **Payment Caching**: Caches successful payments in Redis for consistency checks
-- **Retry Queue**: Implements Redis-based retry mechanism for failed payments
-
-### 2. Async Processing
-- **Non-blocking Payments**: Payment processing is asynchronous to avoid blocking HTTP responses
-- **Database Writes**: Database persistence happens asynchronously after successful payment processing
-- **Concurrent Health Checks**: Processor health checks run concurrently for better performance
-
-### 3. Optimized Processor Selection
-- **Smart Routing**: Uses processor response times to select the fastest available processor
-- **Fallback Strategy**: Automatically falls back to slower processors when faster ones are unavailable
-- **Health Monitoring**: Continuous monitoring with 5-second intervals (respecting API rate limits)
-
-### 4. Resource Optimization
-- **Finch Pool**: Increased HTTP client pool size to 200 for better concurrency
-- **Database Pool**: Optimized database connection pool for better throughput
-- **Memory Management**: Efficient resource allocation across services
-
-### 5. Load Balancing
-- **Nginx Configuration**: Optimized nginx with aggressive timeouts and fast failover
-- **Multiple App Instances**: Two Phoenix applications for load distribution
-- **Redis Caching**: Shared Redis instance for cross-instance data consistency
-
-## Performance Features
-
-### Fast Response Times
-- **Async Processing**: HTTP responses return immediately while processing continues
-- **Optimized Timeouts**: Carefully tuned timeouts for different scenarios
-- **Connection Pooling**: Efficient HTTP and database connection management
-
-### Consistency Guarantees
-- **Dual Storage**: Payments stored in both Redis cache and PostgreSQL database
-- **Summary Reconciliation**: Combines data from both sources for accurate summaries
-- **Retry Mechanism**: Failed payments are automatically retried up to 3 times
-
-### Fault Tolerance
-- **Health Monitoring**: Continuous monitoring of payment processors
-- **Automatic Failover**: Seamless switching between processors based on health
-- **Error Recovery**: Comprehensive error handling and recovery mechanisms
-
-## Technology Stack
-
-- **Backend**: Elixir/Phoenix
-- **Database**: PostgreSQL
-- **Cache**: Redis
-- **Load Balancer**: Nginx
+- **Language**: Elixir 1.14
+- **Framework**: Phoenix 1.7
+- **Database**: PostgreSQL 17
+- **In-Memory Storage**: ETS (Erlang Term Storage)
 - **HTTP Client**: Finch
-- **Containerization**: Docker Compose
+- **Load Balancer**: Nginx
+- **Containerization**: Docker & Docker Compose
+- **Process Management**: GenServer, DynamicSupervisor
 
-## Resource Allocation
+## Architecture
 
-Total resource usage within limits:
-- **CPU**: 1.45 cores (out of 1.5 limit)
-- **Memory**: 350MB (at limit)
+- **Phoenix Framework**: Web framework for handling HTTP requests
+- **PostgreSQL**: Primary database for payment storage and consistency
+- **ETS**: In-memory storage for health check data (fast access)
+- **GenServer Workers**: Asynchronous payment processing with retry logic
+- **Nginx**: Load balancer with rate limiting and performance optimizations
 
-### Service Breakdown:
-- **Nginx**: 0.15 CPU, 30MB RAM
-- **Redis**: 0.25 CPU, 60MB RAM  
-- **PostgreSQL**: 0.35 CPU, 100MB RAM
-- **App1**: 0.35 CPU, 80MB RAM
-- **App2**: 0.35 CPU, 80MB RAM
+## API Endpoints
 
-## Expected Performance
+### POST /payments
+Accepts payment requests and queues them for processing.
 
-Based on the optimizations:
-- **P99 Response Time**: Target < 10ms for performance bonus
-- **Throughput**: High transaction processing with async handling
-- **Consistency**: Zero inconsistencies through dual storage and reconciliation
-- **Profit Maximization**: Smart processor selection for lowest fees
+**Request:**
+```json
+{
+  "correlationId": "uuid-string",
+  "amount": 100.50
+}
+```
 
-## Running the Application
+**Response:** HTTP 202 (Accepted)
 
+### GET /payments-summary
+Returns payment summary with optional date filtering.
+
+**Query Parameters:**
+- `from`: ISO 8601 timestamp (optional)
+- `to`: ISO 8601 timestamp (optional)
+
+**Response:**
+```json
+{
+  "default": {
+    "totalRequests": 1000,
+    "totalAmount": 100500.00
+  },
+  "fallback": {
+    "totalRequests": 50,
+    "totalAmount": 5025.00
+  }
+}
+```
+
+## Deployment
+
+### Docker Compose
 ```bash
-# Start payment processors first
-docker-compose -f ../payment-processor/docker-compose.yml up -d
-
-# Start the application
+# With payment processors up by running this on payment processor dir
 docker-compose up -d
 
-# Check logs
-docker-compose logs -f
+# Start this backend
+docker-compose up -d
 ```
-
-## Monitoring
-
-The application provides comprehensive logging for:
-- Processor health status changes
-- Payment processing success/failure
-- Retry queue processing
-- Performance metrics
-
-## Architecture Diagram
-
-```
-Client Request → Nginx → App1/App2 → Redis Cache → Payment Processor
-                                    ↓
-                              PostgreSQL DB
-```
-
-This architecture ensures high performance, zero inconsistencies, and maximum profit through intelligent processor selection and efficient resource utilization.
-

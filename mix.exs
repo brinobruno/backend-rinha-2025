@@ -29,7 +29,7 @@ defmodule Pit.MixProject do
 
   # Specifies your project dependencies.
   #
-  # Type `mix help deps` for examples and options.
+  # Type `mix help deps` for examples.
   defp deps do
     [
       {:phoenix, "~> 1.7.18"},
@@ -39,8 +39,9 @@ defmodule Pit.MixProject do
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5"},
-      {:finch, "0.20.0"},
-      {:redix, "~> 1.5"}
+      {:finch, "~> 0.20"},
+      {:ecto_sql, "~> 3.10"},
+      {:postgrex, ">= 0.0.0"}
     ]
   end
 
@@ -52,7 +53,9 @@ defmodule Pit.MixProject do
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
-      setup: ["deps.get"]
+      setup: ["deps.get", "ecto.setup"],
+      "ecto.setup": ["ecto.create", "ecto.migrate"],
+      "ecto.reset": ["ecto.drop", "ecto.setup"]
     ]
   end
 end

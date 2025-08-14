@@ -1,25 +1,18 @@
 defmodule PitWeb.PaymentController do
   use PitWeb, :controller
 
-  alias Pit.Domain.Payments.Get
-  alias Pit.Domain.Payments.Create
+  alias Pit.Payments
 
   def create(conn, _params) do
     body = conn.body_params
 
-    # Validate required fields
     case validate_payment_body(body) do
       :ok ->
-        # Use fast processing with Redis caching
-        case Create.process_payment_fast(body) do
+        case Payments.new_payment(body) do
           {:ok, _message} ->
             conn |> put_status(202) |> json(%{status: "accepted"})
-          {:error, "no healthy processor"} ->
-            # Return 503 when no healthy processor is available
-            conn |> put_status(:service_unavailable) |> json(%{status: "error", message: "no healthy processor"})
-          {:error, _reason} ->
-            # Return 500 for other errors
-            conn |> put_status(:internal_server_error) |> json(%{status: "error"})
+          {:error, reason} ->
+            conn |> put_status(:internal_server_error) |> json(%{status: "error", message: reason})
         end
       {:error, reason} ->
         conn |> put_status(:bad_request) |> json(%{status: "error", message: reason})
@@ -27,15 +20,8 @@ defmodule PitWeb.PaymentController do
   end
 
   def get(conn, params) do
-    case Get.call(params) do
-      {:ok, response} ->
-        json(conn, response)
-
-      {:error, reason} ->
-        conn
-        |> put_status(:bad_request)
-        |> json(%{status: "error", message: reason})
-    end
+    response = Payments.summary(params)
+    json(conn, response)
   end
 
   def health(conn, _params) do

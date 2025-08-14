@@ -28,3 +28,21 @@ config :phoenix, :stacktrace_depth, 20
 
 # Initialize plugs at runtime for faster development compilation
 config :phoenix, :plug_init_mode, :runtime
+
+# Configure your database
+config :pit, Pit.Repo,
+  username: "postgres",
+  password: "postgres",
+  hostname: "localhost",
+  database: "pit_dev",
+  stacktrace: true,
+  show_sensitive_data_on_connection_error: true,
+  pool_size: 5,
+  queue_target: 5000,
+  queue_interval: 10_000,
+  timeout: 15_000,
+  pool_timeout: 5000
+
+# Configure secret key base for development
+config :pit, PitWeb.Endpoint,
+  secret_key_base: "CqoOekXLG7Xzj41wF7a+Z5b7FRYc4F94l3dfmIHBhnbwVbnL9rMZ5QiETyCNUT9t"
