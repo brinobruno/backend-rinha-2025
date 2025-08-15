@@ -27,9 +27,9 @@ defmodule Pit.Payments.Monitoring.HealthTracker do
     cond do
       default_status.failing and not fallback_status.failing ->
         :fallback
-      not fallback_status.failing and fallback_status.min_response_time <= 50 ->
+      not fallback_status.failing and fallback_status.min_response_time <= 100 ->
         :fallback
-      not default_status.failing and default_status.min_response_time <= 100 ->
+      not default_status.failing and default_status.min_response_time <= 150 ->
         :default
       true ->
         :default
